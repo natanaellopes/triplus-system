@@ -1,0 +1,77 @@
+<div class="main-content">
+  <div class="container-fluid">
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title">Cheques</h4>
+            <div class="content table-responsive">
+              <table class="table">
+                <thead class="text-primary">
+                  <tr>
+                    <th>#</th>
+                    <th>Cliente</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th class="text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let check of checkArray">
+                    <td>{{ check.id }}</td>
+                    <td>{{ check.client.name }}</td>
+                    <td>{{ check.amount }}</td>
+                    <td>{{ check.status }}</td>
+                    <td class="td-actions text-right">
+                      <button class="btn btn-primary" (click)="update(check)">
+                        <i class="material-icons">edit</i>
+                      </button>
+                      <button class="btn btn-danger" (click)="remove(check)">
+                        <i class="material-icons">close</i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#client-modal">
+          Adicionar cheque
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="check-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <form [formGroup]="checkForm" (ngSubmit)="onSubmit()" class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" *ngIf="!checkSelected">Adicionar cheque</h4>
+        <h4 class="modal-title" *ngIf="checkSelected">Atualizar cheque</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <mat-form-field>
+            <mat-select placeholder="Cliente" name="client_id" formControlName="client_id">
+              <mat-option *ngFor="let client of clientArray" [value]="client">
+                {{ client.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="checkForm.invalid">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
