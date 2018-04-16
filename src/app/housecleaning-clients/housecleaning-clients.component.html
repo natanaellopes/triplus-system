@@ -1,0 +1,161 @@
+<div class="main-content">
+  <div class="container-fluid">
+
+    <div class="row" *ngIf="pageView == 'list'">
+
+      <form class="navbar-form navbar-right" role="search" id="search-container">
+        <div class="form-group form-search is-empty">
+          <input [formControl]="search" name="search" class="form-control" placeholder="Buscar" type="text">
+          <span class="material-input"></span>
+        </div>
+        <button class="btn btn-white btn-round btn-just-icon" type="submit">
+          <i class="material-icons">search</i>
+          <div class="ripple-container"></div>
+        </button>
+      </form>
+
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title">Clientes</h4>
+            <div class="content table-responsive">
+              <table id="datatables" class="table">
+                <thead class="text-primary">
+                  <tr>
+                    <th>Nome</th>
+                    <th class="text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="!clientArray">
+                  <tr>
+                    <td colspan="4">Carregando...</td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="clientArray">
+                  <tr *ngIf="clientArray.length == 0">
+                    <td colspan="4">Nenhum registro encontrado.</td>
+                  </tr>
+                  <tr *ngFor="let client of clientArray">
+                    <td>{{ client.name }}</td>
+                    <td class="td-actions text-right">
+                      <button title="Atualizar cliente" class="btn btn-primary" (click)="update(client)">
+                        <i class="material-icons">edit</i>
+                      </button>
+                      <button title="Remover cliente" class="btn btn-danger" (click)="remove(client)">
+                        <i class="material-icons">close</i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" (click)="showModal()">
+          Adicionar cliente
+        </button>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="pageView == 'form'">
+      <div class="col-md-12">
+        <form class="card" [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title" *ngIf="!clientSelected">Adicionar cliente</h4>
+            <h4 class="card-title" *ngIf="clientSelected">Atualizar cliente</h4>
+            <div class="content">
+              <div class="modal-body">
+
+                <div class="form-group" [class.label-floating]="!clientSelected">
+                  <label class="control-label">Nome</label>
+                  <input type="text" name="name" required formControlName="name" class="form-control">
+                </div>
+              
+                <div class="form-group" [class.label-floating]="!clientSelected">
+                  <label class="control-label">Apelido</label>
+                  <input type="text" name="nickname" required formControlName="nickname" class="form-control">
+                </div>
+              
+                <div class="form-group" [class.label-floating]="!clientSelected">
+                  <label class="control-label">Valor</label>
+                  <input currencyMask type="text" name="price" required formControlName="price" class="form-control">
+                </div>
+              
+                <div class="form-group" [class.label-floating]="!clientSelected">
+                  <label class="control-label">CEP</label>
+                  <input type="text" name="address_zip_code" required formControlName="address_zip_code" class="form-control">
+                </div>
+              
+                <div class="form-group" [class.label-floating]="!clientSelected">
+                  <label class="control-label">Estado</label>
+                  <input type="text" name="address_state" required formControlName="address_state" class="form-control">
+                </div>
+              
+                <div class="form-group" [class.label-floating]="!clientSelected">
+                  <label class="control-label">Cidade</label>
+                  <input type="text" name="address_city" required formControlName="address_city" class="form-control">
+                </div>
+              
+                <div class="form-group" [class.label-floating]="!clientSelected">
+                  <label class="control-label">Rua</label>
+                  <input type="text" name="address_street" required formControlName="address_street" class="form-control">
+                </div>
+              
+                <div class="form-group" [class.label-floating]="!clientSelected">
+                  <label class="control-label">Número</label>
+                  <input type="text" name="address_number" required formControlName="address_number" class="form-control">
+                </div>
+
+                <div class="form-group" [class.label-floating]="!clientSelected">
+                  <label class="control-label">Observações</label>
+                  <textarea name="notes" required formControlName="notes" class="form-control"></textarea>
+                </div>
+
+              </div>
+
+            </div>
+            <div class="card-footer text-right">
+              <button type="button" class="btn btn-default" (click)="closeModal()">Cancelar</button>
+              <button type="submit" class="btn btn-primary" [disabled]="clientForm.invalid">Salvar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  <div class="row" *ngIf="pageView == 'resources-form'">
+      <div class="col-md-12">
+        <form class="card" (ngSubmit)="onResourcesSubmit()">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title">Definir recursos do cliente</h4>
+            <div class="content">
+              <div class="modal-body">
+                <div class="form-group">
+                  <mat-form-field>
+                    <mat-select placeholder="Recursos" multiple name="resources" [(ngModel)]="resourcesArray">
+                      <mat-option [value]="res.resource" *ngFor="let res of resourcesForm">{{ res.title }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-right">
+              <button type="button" class="btn btn-default" (click)="closeModal()">Cancelar</button>
+              <button type="submit" class="btn btn-primary" [disabled]="clientForm.invalid">Salvar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,218 @@
+<div class="main-content">
+  <div class="container-fluid">
+
+    <div class="row" *ngIf="!showForm">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title">Transações com cheque</h4>
+            <div class="content table-responsive">
+              <table class="table">
+                <thead class="text-primary">
+                  <tr>
+                    <th>Dia</th>
+                    <th>Hora</th>
+                    <th>Cliente</th>
+                    <th>Valor</th>
+                    <th class="text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="dealArray">
+                  <tr *ngFor="let deal of checkDealArray">
+                    <td>{{ deal.date | date:'shortDate' }}</td>
+                    <td>{{ deal.time }}</td>
+                    <td>{{ deal.deal_customer.name }}</td>
+                    <td>{{ deal.deal_check.amount | currency:'USD':true }}</td>
+                    <td class="td-actions text-right">
+                      <button class="btn btn-primary" (click)="update(deal)">
+                        <i class="material-icons">edit</i>
+                      </button>
+                      <button class="btn btn-danger" (click)="remove(deal)">
+                        <i class="material-icons">close</i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title">Transações em remessa</h4>
+            <div class="content table-responsive">
+              <table class="table">
+                <thead class="text-primary">
+                  <tr>
+                    <th>Dia</th>
+                    <th>Hora</th>
+                    <th>Cliente</th>
+                    <th>Crédito</th>
+                    <th>Débito</th>
+                    <th class="text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="dealArray">
+                  <tr *ngFor="let deal of remittanceDealArray">
+                    <td>{{ deal.date | date:'shortDate' }}</td>
+                    <td>{{ deal.time }}</td>
+                    <td>{{ deal.deal_customer.name }}</td>
+                    <td>{{ deal.credit | currency:'BRL':true }}</td>
+                    <td>{{ deal.debit | currency:'BRL':true }}</td>
+                    <td class="td-actions text-right">
+                      <button class="btn btn-primary" (click)="update(deal)">
+                        <i class="material-icons">edit</i>
+                      </button>
+                      <button class="btn btn-danger" (click)="remove(deal)">
+                        <i class="material-icons">close</i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12">
+        <button class="btn btn-primary" (click)="showForm = true">
+          Adicionar transação
+        </button>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="showForm">
+      <div class="col-md-12">
+
+        <form [formGroup]="dealForm" (ngSubmit)="onSubmit()" class="card">
+
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">add</i>
+          </div>
+
+          <div class="card-content">
+            <h4 class="card-title" *ngIf="!checkSelected">Adicionar transação</h4>
+            <h4 class="card-title" *ngIf="checkSelected">Atualizar transação</h4>
+
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label class="control-label">Data</label>
+                  <input type="date" name="date" required formControlName="date" class="form-control">
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label class="control-label">Horário</label>
+                  <input type="time" name="time" required formControlName="time" class="form-control">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label">Descrição</label>
+              <input type="text" name="description" required formControlName="description" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <mat-form-field>
+                  <mat-select placeholder="Tipo" name="type" formControlName="type">
+                    <mat-option value="check">Cheque</mat-option>
+                    <mat-option value="remittance">Remessa</mat-option>
+                  </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field>
+                <mat-select placeholder="Cliente" name="customer_id" formControlName="customer_id">
+                  <mat-option *ngFor="let client of clientArray" [value]="client.id">{{ client.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field>
+                  <mat-select placeholder="Entrada/Saída" name="transaction_type" formControlName="transaction_type">
+                    <mat-option value="input">Entrada</mat-option>
+                    <mat-option value="output">Saída</mat-option>
+                  </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="row" *ngIf="dealForm.value.type === 'remittance'">
+              <div class="form-group col-sm-6" *ngIf="dealForm.value.transaction_type === 'input'">
+                <label class="control-label">Crédito</label>
+                <input currencyMask type="text" name="credit" required formControlName="credit" class="form-control">                
+              </div>
+
+              <div class="form-group col-sm-6" *ngIf="dealForm.value.transaction_type === 'output'">
+                <label class="control-label">Débito</label>
+                <input currencyMask type="text" name="debit" required formControlName="debit" class="form-control">
+              </div>              
+            </div>
+
+            <div class="form-group" *ngIf="dealForm.value.type === 'check'">
+              <mat-form-field>
+                <mat-select placeholder="Cheque" name="check_id" formControlName="check_id">
+                  <mat-option *ngFor="let check of checkArray" [value]="check.id" (change)="cashbackCalc()">{{ check.emitter_name }} ({{check.amount}})</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="row" *ngIf="dealForm.value.type === 'remittance'">
+              <div class="form-group col-sm-6" (click)="getQuotation()">
+                <label class="control-label">Cotação atual</label>
+                <input readonly type="text" name="actual_quotation" required formControlName="actual_quotation" class="form-control">
+              </div>
+
+              <div class="form-group col-sm-6">
+                <label class="control-label">Cotação Realizada</label>
+                <input type="text" name="done_quotation" required formControlName="done_quotation" class="form-control">
+              </div>           
+            </div>
+
+            <div class="form-group" *ngIf="dealForm.value.type === 'remittance'">
+              <label class="control-label">Taxa</label>
+              <input currencyMask type="text" name="rate" required formControlName="rate" class="form-control">
+            </div>              
+
+            <div class="row" *ngIf="dealForm.value.type === 'check'">
+              <div class="form-group col-sm-6" *ngIf="dealForm.value.transaction_type === 'input'">
+                <label class="control-label">Taxa de compra (%)</label>
+                <input type="text" name="purchase_rate" required formControlName="purchase_rate" class="form-control" (change)="cashbackCalc()">
+              </div>
+              <div class="form-group col-sm-6" *ngIf="dealForm.value.transaction_type === 'output'">
+                <label class="control-label">Taxa de venda (%)</label>
+                <input type="text" name="sales_charge" required formControlName="sales_charge" class="form-control" (change)="cashbackCalc()">                
+              </div>
+            </div>
+
+            <div class="form-group has-success" *ngIf="cashback && dealForm.value.type === 'check' && dealForm.value.transaction_type === 'input'">
+              <label class="control-label">Pagar pelo cheque</label>
+              <p class="form-control text-success"><b>{{ cashback | currency:'USD':true }}</b></p>
+            </div>
+            
+          </div>
+
+          <div class="card-footer">
+            <button type="button" class="btn btn-default" (click)="closeModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+

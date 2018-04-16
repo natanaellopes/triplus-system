@@ -1,7 +1,33 @@
 <div class="main-content">
   <div class="container-fluid">
 
-    <div class="row">
+    <div class="row" *ngIf="page === 'loading'">
+      <div class="col-md-12">
+        <div class="card mb-0" style="padding: 10px 0 30px;">
+          <div class="card-content">
+            <div class="loader" style="height: 30px;">
+              <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+              </svg>
+            </div>
+            <p class="text-center" style="position: relative;top: 44px;">Aguarde. Estamos debitando os cheques...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="page === 'list'">
+      <form class="navbar-form navbar-right" role="search" id="search-container">
+        <div class="form-group form-search is-empty">
+          <input [formControl]="search" name="search" class="form-control" placeholder="Buscar" type="text">
+          <span class="material-input"></span>
+        </div>
+        <button class="btn btn-white btn-round btn-just-icon" type="submit">
+          <i class="material-icons">search</i>
+          <div class="ripple-container"></div>
+        </button>
+      </form>
+
       <div class="col-md-12">
         <div class="card">
           <div class="card-header card-header-icon" data-background-color="primary">
@@ -13,19 +39,36 @@
               <table class="table">
                 <thead class="text-primary">
                   <tr>
-                    <th>#</th>
+                    <th width="60"></th>
+                    <th width="60"></th>
                     <th>Cliente</th>
+                    <th>Número</th>
+                    <th>Data</th>
                     <th>Valor</th>
-                    <th>Status</th>
                     <th class="text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let check of checkArray">
-                    <td>{{ check.id }}</td>
-                    <td>{{ check.client.name }}</td>
-                    <td>{{ check.amount }}</td>
-                    <td>{{ check.status }}</td>
+                    <td>
+                      <div class="checkbox">
+                          <label>
+                              <input type="checkbox" (change)="onCheckChecked(check)" />
+                          </label>
+                      </div>
+                    </td>
+                    <td>
+                      <i 
+                        class="material-icons" 
+                        [class.text-success]="check.status === 'success'"
+                        [class.text-warning]="check.status === 'warning'"
+                        [class.text-danger]="check.status === 'danger'"
+                        >turned_in</i>
+                    </td>
+                    <td>{{ check.customer?.name }}</td>
+                    <td>{{ check.number }}</td>
+                    <td>{{ check.date | date:'shortDate':'':'br' }}</td>
+                    <td>{{ check.amount | currency:'USD':true }}</td>
                     <td class="td-actions text-right">
                       <button class="btn btn-primary" (click)="update(check)">
                         <i class="material-icons">edit</i>
@@ -40,37 +83,150 @@
             </div>
           </div>
         </div>
-        <button class="btn btn-primary" data-toggle="modal" data-target="#client-modal">
+
+        <div class="row" *ngIf="checkArraySelected.length > 0">
+          <div class="col-sm-12">
+            <div class="well">
+              <p>Você selecionou <b>{{ checkArraySelected.length }}</b> cheques no valor total de <b>{{ checkArraySelectedSum | currency }}</b></p>
+              <button class="btn btn-primary" (click)="checkDebit()">DEBITAR</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" (click)="showModal()">
           Adicionar cheque
         </button>
+        <button class="btn btn-default" (click)="getAllChecks()" *ngIf="!showAllChecks">
+          Ver todos os cheques
+        </button>
+        <button class="btn btn-default" (click)="getChecks()" *ngIf="showAllChecks">
+          Ver cheques em caixa
+        </button>
+        
       </div>
     </div>
 
+    <div class="row" *ngIf="page === 'form'">
+      <div class="col-md-12">
+        <form [formGroup]="checkForm" (ngSubmit)="onSubmit()" class="card">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title" *ngIf="!checkSelected">Adicionar cheque</h4>
+            <h4 class="card-title" *ngIf="checkSelected">Atualizar cheque</h4>
+            <div class="content table-responsive">
+              
+            <div class="form-group">
+              <label class="control-label">Data</label>
+              <input type="date" name="date" required formControlName="date" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label class="control-label">Imagem</label> <br />
+              <div id="check-img-container" *ngIf="selectedFile !== ''">
+                <img class="img-responsive" [src]="selectedFile" />
+              </div>
+              <button type="button" class="btn btn-primary" (click)="showFilePicker()">Selecionar imagem</button>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label">Número do cheque</label>
+              <input type="text" name="number" required formControlName="number" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label class="control-label">Nome do banco</label>
+              <input type="text" name="bank_name" required formControlName="bank" class="form-control">
+            </div>          
+
+            <div class="row">
+              <div class="form-group col-sm-6">
+                <label class="control-label">Agência/Origem</label>
+                <input type="text" name="agency" required formControlName="agency" class="form-control">
+              </div>
+
+              <div class="form-group col-sm-6">
+                <label class="control-label">Conta</label>
+                <input type="text" name="account" required formControlName="account" class="form-control">
+              </div>           
+            </div>
+
+            <div class="form-group">
+              <label class="control-label">Valor</label>
+              <input currencyMask type="text" name="amount" required formControlName="amount" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <mat-form-field>
+                <mat-select placeholder="Cliente" name="customer_id" formControlName="customer_id">
+                  <mat-option *ngFor="let client of clientArray" [value]="client.id">{{ client.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label">Nome do emissor</label>
+              <input type="text" name="emitter_name" required formControlName="emitter_name" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label class="control-label">Documento do emissor</label>
+              <input type="text" name="emitter_doc" required formControlName="emitter_doc" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label class="control-label">Status</label>
+              <select class="form-control" name="status" formControlName="status">
+                <option value="success">Verde</option>
+                <option value="warning">Amarelo</option>
+                <option value="danger">Vermelho</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label">Observações</label>
+              <textarea name="notes" required formControlName="notes" class="form-control"></textarea>
+            </div>
+
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-default" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="checkForm.invalid">Salvar</button>
+        </div>
+      </form>
+    </div>
   </div>
+
 </div>
 
-<div id="check-modal" class="modal fade" role="dialog">
+<div id="check-debit" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog">
-    <form [formGroup]="checkForm" (ngSubmit)="onSubmit()" class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title" *ngIf="!checkSelected">Adicionar cheque</h4>
-        <h4 class="modal-title" *ngIf="checkSelected">Atualizar cheque</h4>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <mat-form-field>
-            <mat-select placeholder="Cliente" name="client_id" formControlName="client_id">
-              <mat-option *ngFor="let client of clientArray" [value]="client">
-                {{ client.name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+    <form [formGroup]="checkDebitForm" (ngSubmit)="onCheckDebitSubmit()" class="card">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Debitar cheques</h4>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" (click)="closeModal()">Cancelar</button>
-        <button type="submit" class="btn btn-primary" [disabled]="checkForm.invalid">Salvar</button>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="control-label">Cliente</label>
+            <select name="customer_id" formControlName="customer_id" class="form-control">
+              <option *ngFor="let client of clientArray" [value]="client.id">{{ client.name }}</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <label class="control-label">Taxa de venda (%)</label>
+              <input type="text" name="sales_charge" required formControlName="sales_charge" class="form-control">                
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
       </div>
     </form>
   </div>

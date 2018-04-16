@@ -6,6 +6,7 @@ import { MaterialModule } from '../app.module';
 
 import { DashboardComponent } from './dashboard.component';
 import { DashboardRoutes } from './dashboard.routing';
+import { CalendarComponent } from '../calendar/calendar.component';
 
 @NgModule({
     imports: [
@@ -14,7 +15,8 @@ import { DashboardRoutes } from './dashboard.routing';
         FormsModule,
         MaterialModule
     ],
-    declarations: [DashboardComponent]
+    declarations: [DashboardComponent, CalendarComponent]
 })
 
-export class DashboardModule {}
+export class DashboardModule {
+}

@@ -5,10 +5,10 @@ import 'rxjs/add/observable/of';
 
 import { environment } from '../../../environments/environment';
 
-import { Client } from '../models/client.model';
+import { TriplusClient as Client } from '../models/triplus-client.model';
 
 @Injectable()
-export class ClientsService {
+export class TriplusClientService {
 
   constructor(public http: HttpClient) {
 
@@ -57,19 +57,23 @@ export class ClientsService {
   }
 
   public create(client: Client): Observable<Object> {
-    return this.http.post(environment.baseUrl + '/api/v1/customers', client, this.getHeaders());
+    return this.http.post(environment.baseUrl + '/api/v1/clients', client, this.getHeaders());
   }
 
   public update(client: Client): Observable<Object> {
-    return this.http.post(environment.baseUrl + '/api/v1/customers/' + client.id, client, this.getHeaders());
+    return this.http.post(environment.baseUrl + '/api/v1/clients/' + client.id, client, this.getHeaders());
+  }
+
+  public resources(resource: string, id: number): Observable<Object> {
+    return this.http.post(environment.baseUrl + '/api/v1/clients/' + id + '/resources', {resources: resource}, this.getHeaders());
   }
 
   public delete(id: number): Observable<Object> {
-    return this.http.delete(environment.baseUrl + '/api/v1/customers/' + id, this.getHeaders());
+    return this.http.delete(environment.baseUrl + '/api/v1/clients/' + id, this.getHeaders());
   }
 
   public fetchAll(): Observable<any> {
-    return this.http.get(environment.baseUrl + '/api/v1/customers', this.getHeaders());
+    return this.http.get(environment.baseUrl + '/api/v1/clients', this.getHeaders());
   }
 
   getHeaders(): {headers: HttpHeaders} {

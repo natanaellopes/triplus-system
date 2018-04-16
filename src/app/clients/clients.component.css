@@ -1,0 +1,13 @@
+#search-container {
+    position: absolute;
+    top: -20px;
+    right: 40px;
+    z-index: 99999;
+}
+
+#check-img-container {
+    width: 120px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    background: #f9f9f9;
+}

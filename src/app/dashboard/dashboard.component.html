@@ -1,4 +1,145 @@
 <div class="main-content">
-    <div class="container-fluid">
+  <div class="container-fluid">
+
+    <div *ngIf="loggedUser.client_id == 2">
+      <app-calendar-cmp></app-calendar-cmp>
     </div>
+
+    <div *ngIf="loggedUser.client_id == 1">
+      <div class="row">
+
+        <div class="col-lg-4 col-md-6">
+          <div class="card card-stats">
+            <div class="card-header" data-background-color="red">
+              <i class="material-icons">access_time</i>
+            </div>
+            <div class="card-content">
+              <p class="category">{{ today | date }}</p>
+              <h3 class="card-title">{{ today | date:'shortTime' }}</h3>
+            </div>
+            <div class="card-footer">
+              <div class="stats">
+                Data e hora atual
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="card card-stats">
+            <div class="card-header" data-background-color="blue">
+              <i class="material-icons">attach_money</i>
+            </div>
+            <div class="card-content">
+              <p class="category">Balanço do dia</p>
+              <h3 class="card-title">{{ balance | currency }}</h3>
+            </div>
+            <div class="card-footer">
+              <div class="stats">
+                Total em cheques e dinheiro
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="card card-stats">
+            <div class="card-header" data-background-color="primary">
+              <i class="material-icons">transform</i>
+            </div>
+            <div class="card-content">
+              <p class="category">Cotação do dia</p>
+              <h3 class="card-title" *ngIf="!quotation">U$1.00 = R$_.__</h3>
+              <h3 class="card-title" *ngIf="quotation">U$1.00 = {{ quotation.valores.USD.valor | currency:'BRL':true:'1.2-2' }}</h3>
+            </div>
+            <div class="card-footer">
+              <div class="stats" *ngIf="!quotation">
+                <i class="material-icons">local_offer</i>
+              </div>
+              <div class="stats" *ngIf="quotation">
+                <i class="material-icons">local_offer</i> {{ quotation.valores.USD.fonte }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-header card-header-text" data-background-color="orange">
+              <h4 class="card-title">Caixa (cheques)</h4>
+              <p class="category">As últimas movimentações do caixa em cheque</p>
+            </div>
+            <div class="card-content table-responsive">
+              <table id="datatables" class="table">
+                <thead class="text-warning">
+                  <tr>
+                    <th width="40"></th>
+                    <th>Nome</th>
+                    <th>Valor</th>
+                    <th>Saldo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let balance of checkBalanceArray">
+                    <td>
+                      <i class="material-icons text-success" *ngIf="balance.type === 'input'">arrow_upward</i>
+                      <i class="material-icons text-danger" *ngIf="balance.type === 'output'">arrow_downward</i>
+                    </td>
+                    <td>
+                      {{ balance.name }}
+                    </td>
+                    <td>
+                      {{ balance.amount | currency }}
+                    </td>
+                    <td>{{ balance.balance | currency }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-header card-header-text" data-background-color="red">
+              <h4 class="card-title">Caixa (remessas)</h4>
+              <p class="category">As últimas movimentações do caixa em remessas</p>
+            </div>
+            <div class="card-content table-responsive">
+              <table id="datatables" class="table">
+                <thead class="text-warning">
+                  <tr>
+                    <th width="40"></th>
+                    <th>Nome</th>
+                    <th>Valor</th>
+                    <th>Saldo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let balance of remittanceBalanceArray">
+                    <td>
+                      <i class="material-icons text-success" *ngIf="balance.type === 'input'">arrow_upward</i>
+                      <i class="material-icons text-danger" *ngIf="balance.type === 'output'">arrow_downward</i>
+                    </td>
+                    <td>
+                      {{ balance.name }}
+                    </td>
+                    <td>
+                      {{ balance.amount | currency }}
+                    </td>
+                    <td>{{ balance.balance | currency }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 </div>

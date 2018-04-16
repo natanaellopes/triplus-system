@@ -4,10 +4,10 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-4 col-sm-6 col-md-offset-4 col-sm-offset-3">
-                        <form method="#" action="#">
+                        <form [formGroup]="form" (ngSubmit)="onSubmit()">
                             <div class="card card-login card-hidden">
                                 <div class="card-header text-center" data-background-color="primary">
-                                    <h4 class="card-title">Entrar no Triplus</h4>
+                                    <h4 class="card-title">Entrar</h4>
                                 </div>
                                 <div class="card-content">
                                     <div class="input-group">
@@ -16,7 +16,7 @@
                                         </span>
                                         <div class="form-group label-floating">
                                             <label class="control-label">Email</label>
-                                            <input type="email" class="form-control">
+                                            <input type="email" class="form-control" formControlName="username">
                                         </div>
                                     </div>
                                     <div class="input-group">
@@ -25,12 +25,12 @@
                                         </span>
                                         <div class="form-group label-floating">
                                             <label class="control-label">Senha</label>
-                                            <input type="password" class="form-control">
+                                            <input type="password" class="form-control" formControlName="password">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="footer text-center">
-                                    <button type="submit" class="btn btn-primary btn-simple btn-wd btn-lg" routerLink="/dashboard">Entrar</button>
+                                    <button  [disabled]="form.invalid" type="submit" class="btn btn-primary btn-simple btn-wd btn-lg">Entrar</button>
                                 </div>
                             </div>
                         </form>

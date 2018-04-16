@@ -5,10 +5,10 @@ import 'rxjs/add/observable/of';
 
 import { environment } from '../../../environments/environment';
 
-import { Client } from '../models/client.model';
+import { HouseCleaningClient as Client } from '../models/housecleaning-client.model';
 
 @Injectable()
-export class ClientsService {
+export class HouseCleaningClientService {
 
   constructor(public http: HttpClient) {
 
@@ -57,19 +57,19 @@ export class ClientsService {
   }
 
   public create(client: Client): Observable<Object> {
-    return this.http.post(environment.baseUrl + '/api/v1/customers', client, this.getHeaders());
+    return this.http.post(environment.baseUrl + '/api/v1/housecleaning/clients', client, this.getHeaders());
   }
 
   public update(client: Client): Observable<Object> {
-    return this.http.post(environment.baseUrl + '/api/v1/customers/' + client.id, client, this.getHeaders());
+    return this.http.post(environment.baseUrl + '/api/v1/housecleaning/clients/' + client.id, client, this.getHeaders());
   }
 
   public delete(id: number): Observable<Object> {
-    return this.http.delete(environment.baseUrl + '/api/v1/customers/' + id, this.getHeaders());
+    return this.http.delete(environment.baseUrl + '/api/v1/housecleaning/clients/' + id, this.getHeaders());
   }
 
   public fetchAll(): Observable<any> {
-    return this.http.get(environment.baseUrl + '/api/v1/customers', this.getHeaders());
+    return this.http.get(environment.baseUrl + '/api/v1/housecleaning/clients', this.getHeaders());
   }
 
   getHeaders(): {headers: HttpHeaders} {

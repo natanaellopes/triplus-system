@@ -1,0 +1,148 @@
+<div class="main-content">
+  <div class="container-fluid">
+
+    <div class="row" *ngIf="pageView == 'list'">
+
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title">Usuários</h4>
+            <div class="content table-responsive">
+              <table id="datatables" class="table">
+                <thead class="text-primary">
+                  <tr>
+                    <th>Nome</th>
+                    <th>Cliente</th>
+                    <th class="text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="!userArray">
+                  <tr>
+                    <td colspan="4">Carregando...</td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="userArray">
+                  <tr *ngIf="userArray.length == 0">
+                    <td colspan="4">Nenhum registro encontrado.</td>
+                  </tr>
+                  <tr *ngFor="let user of userArray">
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.client?.name }}</td>
+                    <td class="td-actions text-right" *ngIf="user.role === 'SUPERADMIN'">
+                    </td>
+                    <td class="td-actions text-right" *ngIf="user.role !== 'SUPERADMIN'">
+                      <button title="Atualizar senha" class="btn btn-warning" (click)="updatePassword(user)">
+                        <i class="material-icons">lock</i>
+                      </button>
+                      <button title="Atualizar usuário" class="btn btn-primary" (click)="update(user)">
+                        <i class="material-icons">edit</i>
+                      </button>
+                      <button title="Remover usuário" class="btn btn-danger" (click)="remove(user)">
+                        <i class="material-icons">close</i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" (click)="showModal()">
+          Adicionar usuário
+        </button>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="pageView == 'form'">
+      <div class="col-md-12">
+        <form class="card" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title" *ngIf="!userSelected">Adicionar usuário</h4>
+            <h4 class="card-title" *ngIf="userSelected">Atualizar usuário</h4>
+            <div class="content">
+              <div class="modal-body">
+                <div class="form-group" [class.label-floating]="!userSelected">
+                  <label class="control-label">Nome</label>
+                  <input type="text" name="name" required formControlName="name" class="form-control">
+                </div>
+                <div class="form-group" [class.label-floating]="!userSelected">
+                  <label class="control-label">Email</label>
+                  <input type="email" name="email" required email formControlName="email" class="form-control">
+                </div>
+                <div class="form-group" class.label-floating *ngIf="!userSelected">
+                  <label class="control-label">Password</label>
+                  <input type="password" name="password" required formControlName="password" class="form-control">
+                </div>
+
+                <div class="form-group" [class.label-floating]="!userSelected">
+                  <mat-form-field>
+                    <mat-select placeholder="Nível" name="level" formControlName="level">
+                      <mat-option value="ADMIN">Administrador</mat-option>
+                      <mat-option value="CLIENT">Cliente</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-group" [class.label-floating]="!userSelected">
+                  <mat-form-field>
+                    <mat-select placeholder="Função" name="role" formControlName="role">
+                      <mat-option value="ADMIN">Administrador</mat-option>
+                      <mat-option value="USER">Usuário</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-group" [class.label-floating]="!userSelected">
+                  <mat-form-field>
+                    <mat-select placeholder="Cliente" name="client_id" formControlName="client_id">
+                      <mat-option value="1">JL Store</mat-option>
+                      <mat-option value="2">Flash Clean</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+              </div>
+
+            </div>
+            <div class="card-footer text-right">
+              <button type="button" class="btn btn-default" (click)="closeModal()">Cancelar</button>
+              <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid">Salvar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="pageView == 'password'">
+      <div class="col-md-12">
+        <form class="card" [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
+          <div class="card-header card-header-icon" data-background-color="primary">
+            <i class="material-icons">group</i>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title">Atualizar senha</h4>
+            <div class="content">
+              <div class="modal-body">
+                <div class="form-group">
+                  <label class="control-label">Nova senha</label>
+                  <input type="text" name="password" required formControlName="password" class="form-control">
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-right">
+              <button type="button" class="btn btn-default" (click)="closeModal()">Cancelar</button>
+              <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid">Salvar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

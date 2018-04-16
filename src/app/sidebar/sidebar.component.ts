@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import PerfectScrollbar from 'perfect-scrollbar';
 
 declare const $: any;
@@ -9,6 +10,7 @@ export interface RouteInfo {
     title: string;
     type: string;
     icontype: string;
+    resource: string;
     collapse?: string;
     children?: ChildrenItems[];
 }
@@ -23,22 +25,46 @@ export interface ChildrenItems {
 //Menu Items
 export const ROUTES: RouteInfo[] = [
     {
-        path: '/dashboard',
-        title: 'Dashboard',
-        type: 'link',
-        icontype: 'dashboard'
-    },
-    {
         path: '/clients',
         title: 'Clientes',
         type: 'link',
-        icontype: 'group'
+        icontype: 'group',
+        resource: 'clients'
+    },
+    {
+        path: '/triplus-client',
+        title: 'Clientes',
+        type: 'link',
+        icontype: 'group',
+        resource: 'triplus-client'
+    },
+    {
+        path: '/users',
+        title: 'Usuários',
+        type: 'link',
+        icontype: 'group',
+        resource: 'users'
     },
     {
         path: '/checks',
         title: 'Cheques',
         type: 'link',
-        icontype: 'attach_money'
+        icontype: 'attach_money',
+        resource: 'checks'
+    },
+    {
+        path: '/deal',
+        title: 'Transações',
+        type: 'link',
+        icontype: 'swap_horiz',
+        resource: 'deal'
+    },
+    {
+        path: '/housecleaning/client',
+        title: 'Clientes',
+        type: 'link',
+        icontype: 'group',
+        resource: 'housecleaning-client'
     }
 ];
 @Component({
@@ -48,6 +74,9 @@ export const ROUTES: RouteInfo[] = [
 
 export class SidebarComponent implements OnInit {
     public menuItems: any[];
+    public loggedUser: any;
+
+    constructor(private router: Router) {}
 
     isMobileMenu() {
         if ($(window).width() > 991) {
@@ -57,7 +86,28 @@ export class SidebarComponent implements OnInit {
     };
 
     ngOnInit() {
-        this.menuItems = ROUTES.filter(menuItem => menuItem);
+        this.menuItems = [];
+        this.menuItems.push({
+            path: '/dashboard',
+            title: 'Dashboard',
+            type: 'link',
+            icontype: 'dashboard',
+            resource: 'dashboard'
+        });
+        this.loggedUser = JSON.parse(localStorage.getItem('triplus_loggedUser'));
+        if(this.loggedUser.resources !== '') {
+            let resources = this.loggedUser.resources.split(',');
+            for(let res of resources) {
+                this.menuItems.push(ROUTES.find(item => {
+                    return item.resource === res;
+                }))
+            }            
+        }
+    }
+
+    logout() {
+        localStorage.clear();
+        this.router.navigate(['auth']);
     }
     updatePS(): void  {
         if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac()) {

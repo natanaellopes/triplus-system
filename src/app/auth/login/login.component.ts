@@ -1,21 +1,63 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { JwtHelper } from 'angular2-jwt';
+import { Router } from '@angular/router';
+
+import { AuthService } from '../../@core/services/auth.service';
 
 declare var $: any;
+declare var swal: any;
 
 @Component({
     selector: 'app-login-cmp',
-    templateUrl: './login.component.html'
+    templateUrl: './login.component.html',
+    providers: [AuthService]
 })
 
 export class LoginComponent implements OnInit {
-    test: Date = new Date();
     private toggleButton: any;
     private sidebarVisible: boolean;
     private nativeElement: Node;
+    public form: FormGroup;
+    jwtHelper: JwtHelper = new JwtHelper();
 
-    constructor(private element: ElementRef) {
+    constructor(
+        private element: ElementRef, 
+        public formBuilder: FormBuilder,
+        public _authService: AuthService,
+        private router: Router
+    ) {
         this.nativeElement = element.nativeElement;
         this.sidebarVisible = false;
+
+        if(localStorage.getItem('triplus_token')) {
+            router.navigate(['dashboard']);
+        }
+
+        this.form = this.formBuilder.group({
+          username: '',
+          password: ''
+        });
+    }
+
+    onSubmit(): void {
+        const values = this.form.value;
+        this._authService.authenticate(values.username, values.password)
+          .subscribe(
+            res => {
+                localStorage.setItem('triplus_token', res.token_type + ' ' + res.access_token);
+                let decodeToken = this.jwtHelper.decodeToken(res.access_token);
+                localStorage.setItem('triplus_loggedUser', JSON.stringify(decodeToken.user));
+                this.router.navigate(['dashboard']);
+            },
+            err => {
+                swal({
+                    title: 'Usuário e/ou senha incorretos',
+                    text: 'Verifique os dados e tente novamente!',
+                    type: 'error',
+                    confirmButtonClass: 'btn btn-success',
+                });
+            });
     }
 
     ngOnInit() {
